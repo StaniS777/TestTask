@@ -1,0 +1,14 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "api",
+            "database": "testapi",
+            "username": "postgres",
+            "password": "Qawsedr5"
+        }
+    ]
+}
