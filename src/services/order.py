@@ -1,6 +1,5 @@
 from uuid import UUID
 from asyncpg import DataError
-from sqlalchemy import exc
 from sqlalchemy.exc import ProgrammingError
 
 
@@ -12,6 +11,7 @@ from src.schemas.order import (
     OrderUpdateSchema,
     OrderAddItemsSchema,
     OrderItemCreateSchema,
+    OrderRetrieveListSchema,
 )
 from src.schemas.product import ProductUpdateSchema
 from src.services.product import ProductService
@@ -21,12 +21,12 @@ from src.services.base import BaseService
 class OrderService(
     BaseService[
         OrderRepository,
-        OrderRetrieveSchema,
+        OrderRetrieveListSchema,
         OrderAddItemsSchema,
         OrderUpdateSchema,
     ]
 ):
-    retrieve_schema = OrderRetrieveSchema
+    retrieve_schema = OrderRetrieveListSchema
     create_schema = OrderAddItemsSchema
     update_schema = OrderUpdateSchema
 
@@ -62,7 +62,7 @@ class OrderService(
 
             product_quantity_map[item.product_uuid] = col
 
-        order = await super().create(data=OrderCreateSchema())
+        order = await self.repo.create_one(OrderCreateSchema.model_validate(data).model_dump())
 
         for item in order_items:
             order_item_data = OrderItemCreateSchema(
@@ -76,7 +76,16 @@ class OrderService(
             product_update_data = ProductUpdateSchema(quantity=product_quantity)
             await self.product_service.update(product_uuid, product_update_data)
 
-        return await OrderRetrieveSchema.model_validate(order)
+        return OrderRetrieveSchema.model_validate(order)
+    
+    async def update(self, obj_id: str | UUID, data: OrderUpdateSchema, partial=True) -> OrderRetrieveSchema:
+        order = await self.repo.update_one(
+            obj_id, data.model_dump(exclude_unset=partial)
+        )
+        return OrderRetrieveSchema.model_validate(order)
 
-    async def update_status(self, order_id: UUID, status: OrderStatus):
-        return {"order_id": order_id, "status": status}
+    async def update_status(self, order_id: UUID, status: OrderStatus) -> OrderRetrieveSchema:
+        order = await self.repo.update_one(
+            order_id, {"status": status}
+        )
+        return OrderRetrieveSchema.model_validate(order)

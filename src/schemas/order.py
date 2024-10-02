@@ -1,11 +1,8 @@
 from datetime import datetime
-from decimal import Decimal
-from typing import Optional
 from uuid import UUID
 
 from src.schemas.base import BaseModel
-from src.models.order import OrderItem, OrderStatus
-from src.schemas.product import ProductRetrieveSchema
+from src.models.order import OrderStatus
 
 
 
@@ -17,7 +14,6 @@ class OrderItemAddSchema(BaseModel):
 class OrderRetrieveSchema(BaseModel):
     pk: UUID
     status: OrderStatus
-    # items: OrderItemAddSchema
     created_at: datetime
     updated_at: datetime
 
@@ -27,10 +23,14 @@ class OrderCreateSchema(BaseModel):
 
 
 class OrderAddItemsSchema(BaseModel):
-    items: OrderItemAddSchema
+    items: list[OrderItemAddSchema]
 
 
 class OrderUpdateSchema(BaseModel):
+    status: OrderStatus
+
+
+class OrderUpdateStatusSchema(BaseModel):
     status: OrderStatus
 
 
