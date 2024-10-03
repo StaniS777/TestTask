@@ -47,7 +47,7 @@ async def patch_order_by_id(
     order_id: UUID,
     data: OrderUpdateStatusSchema,
     service: OrderService = Depends(get_order_service),
-) -> OrderRetrieveSchema:
+) -> OrderRetrieveSchema: 
     
     result = await service.update_status(order_id, data.status  )
     if result is None:
