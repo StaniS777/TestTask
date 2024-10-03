@@ -49,7 +49,7 @@ async def patch_order_by_id(
     service: OrderService = Depends(get_order_service),
 ) -> OrderRetrieveSchema:
     
-    result = await service.update_status(order_id, data.status  )
+    result = await service.update_status(order_id, data.status)
     if result is None:
         raise HTTPException(status_code=404, detail="Order not found")
     
